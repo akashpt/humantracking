@@ -1,0 +1,394 @@
+{% extends 'webapp/layouts/base.html' %}
+{% block content %}
+{% load static %}
+
+  <div class="container home_page">
+    <!-- ===== DASHBOARD ===== -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="dashboard">
+          <div class="card list">
+            <h4>Total Employees</h4>
+            <h2>{{ total_employees }}</h2>
+          </div>
+
+          <div class="card list">
+            <h4>Company ID</h4>
+            <h2>{{ company_id }}</h2>
+          </div>
+
+          <div class="card list">
+            <h4>Total Cameras</h4>
+            <h2>{{ total_cameras }}</h2>
+          </div>
+
+          <div class="card list">
+            <h4>Today's Attendance</h4>
+            <h2>{{ attendance_percentage }}%</h2>
+            <small>{{ present_count }} Present</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="employee_div">
+      <div class="row g-3">
+        <style>
+          /* Make sure both cards stretch to same height in the row */
+          .employee_div .row {
+            display: flex;
+            flex-wrap: wrap;
+          }
+          
+          .employee_div .card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          
+          .employee_div .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+          }
+          
+          .employee_div .h-100 {
+            height: 100% !important;
+          }
+          .employee_div .table-responsive {
+            max-height: 425px;
+          }
+          /* Better image handling */
+        </style>
+        <!-- g-3 = nicer gap between cards -->
+
+        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
+          <div class="card h-100 shadow-sm">
+            <!-- h-100 = equal height -->
+            <div class="card-header">
+              <h4 class="mb-0">Employee List</h4>
+            </div>
+            <div class="card-body p-0">
+              <!-- remove default padding for table -->
+              <div class="table-responsive">
+                <table class="table table-hover mb-0" id="employeeTable">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>ID</th>
+                      <th>Department</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for emp in employees %}
+                      <tr>
+                        <td class="text-center" style="width: 70px; padding: 8px;">
+                          <div class="employee_image rounded-circle overflow-hidden" style="width: 48px; height: 48px; margin: 0 auto;">
+                            <img src="{{ emp.profile_pic.url }}" alt="{{ emp.emp_name }}" class="img-fluid" style="width:100%; height:100%; object-fit: cover;" />
+                          </div>
+                        </td>
+                        <td>{{ emp.emp_name }}</td>
+                        <td>{{ emp.emp_id }}</td>
+                        <td>{{ emp.dept }}</td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No employees found</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Card - Camera Analytics -->
+        <div class="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
+          <div class="card   shadow-sm">
+            <!-- h-100 = equal height -->
+            <div class="card-header">
+              <h4 class="mb-0">Camera Analytics</h4>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <!-- Controls -->
+              <div class="mb-3">
+                <select id="cameraSelect" class="form-select mb-2">
+                  <option value="">Select Camera</option>
+                  {% for cam in camera_names %}
+                    <option value="{{ cam }}">{{ cam }}</option>
+                  {% endfor %}
+                </select>
+
+                <select id="monthSelect" class="form-select">
+                  <option value="">Select Month</option>
+                  {% for m in month_list %}
+                    <option value="{{ m.num }}">{{ m.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Message / Chart container -->
+              <div class="flex-grow-1 position-relative">
+                <div id="emptyMsg" class="text-center text-muted d-flex align-items-center justify-content-center h-100" style="display: none;">Select camera and month to view analytics</div>
+
+                <div id="salesChart" class="w-100 h-100" style="min-height: 220px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- Attendance Report -->
+  <div class="row mt-3">
+    <div class="col-xxl-12 col-lg-12 col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>Attendance Report</h4>
+        </div>
+        <div class="card-body">
+          <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active text-uppercase" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Week</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Month</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-uppercase" id="contact-tab" data-bs-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Year</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+              <div id="traffic-chart-week" style="height: 350px;"></div>
+            </div>
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+              <div id="traffic-chart-month" style="height: 350px;"></div>
+            </div>
+            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+              <div id="traffic-chart-year" style="height: 350px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .tab-pane {
+      display: block !important;
+      height: 0;
+      overflow: hidden;
+      visibility: hidden;
+    }
+    .tab-pane.active {
+      height: auto;
+      visibility: visible;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <script>
+  let weekChart=null;
+  let monthChart=null;
+  let yearChart=null;
+
+function loadWeek() {
+    if (weekChart) { weekChart.destroy(); }
+
+    weekChart = new ApexCharts(document.querySelector("#traffic-chart-week"), {
+        series: [{ name: "Attendance %", data: {{ week_values|safe }} }],
+        chart: { type: "bar", height: 350, animations: { enabled: true } },
+        xaxis: { categories: {{ week_labels|safe }} },
+        yaxis: {
+            min: 0,
+            max: 100,
+            tickAmount: 5
+        },
+
+        dataLabels: { enabled: true, formatter: v => v + "%" },
+        
+        colors: ['#930606'],           // ← added: red for the bars (single series)
+        
+        // Optional: nicer looking bars
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                columnWidth: '60%',
+            }
+        }
+    });
+
+    weekChart.render();
+}
+
+function loadMonth() {
+    if (monthChart) { monthChart.destroy(); }
+
+    monthChart = new ApexCharts(document.querySelector("#traffic-chart-month"), {
+        series: [{ name: "Attendance %", data: {{ month_values|safe }} }],
+        chart: { type: "bar", height: 350, animations: { enabled: true } },
+        xaxis: { categories: {{ month_labels|safe }} },
+        yaxis: {
+            min: 0,
+            max: 100,
+            tickAmount: 5
+        },
+
+        dataLabels: { enabled: true, formatter: v => v + "%" },
+        
+        colors: ['#2f5f05'],           // ← added: red
+        
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                columnWidth: '60%',
+            }
+        }
+    });
+
+    monthChart.render();
+}
+
+function loadYear() {
+    if (yearChart) { yearChart.destroy(); }
+
+    yearChart = new ApexCharts(document.querySelector("#traffic-chart-year"), {
+        series: [{ name: "Attendance %", data: {{ year_values|safe }} }],
+        chart: { type: "bar", height: 350, animations: { enabled: true } },
+        xaxis: { categories: {{ year_labels|safe }} },
+        yaxis: {
+            min: 0,
+            max: 100,
+            tickAmount: 5
+        },
+
+        dataLabels: { enabled: true, formatter: v => v + "%" },
+        
+        colors: ['#27094e'],           // ← added: red
+        
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                columnWidth: '60%',
+            }
+        }
+    });
+
+    yearChart.render();
+}
+
+  // PAGE LOAD → WEEK DEFAULT
+  document.addEventListener("DOMContentLoaded",()=>{
+    loadWeek();
+  });
+
+
+  // TAB CLICK SWITCH
+  document.querySelectorAll('#myTab a').forEach(tab=>{
+    tab.addEventListener("shown.bs.tab", e=>{
+
+      const id = e.target.getAttribute("href");
+
+      if(id==="#home") loadWeek();
+      if(id==="#profile") loadMonth();
+      if(id==="#contact") loadYear();
+
+    });
+  });
+  </script>
+
+  
+  <!-- camaras -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+ <script>
+let chart = null;
+
+function renderChart(emp, unknown, noface) {
+    const options = {
+        series: [emp, unknown, noface],
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        labels: ["Employee", "Unknown", "No Face"],
+        colors: ['#8a1414', '#2b2bca', '#357428'],
+
+        dataLabels: {
+            formatter: function (val, opts) {
+                // ✅ val is already percentage
+                return val.toFixed(1) + "%";
+            }
+        },
+
+        tooltip: {
+            y: {
+                formatter: function (value) {
+                    return value;
+                }
+            }
+        }
+    };
+
+    if (chart) chart.destroy();
+    chart = new ApexCharts(document.querySelector("#salesChart"), options);
+    chart.render();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const camSelect = document.getElementById("cameraSelect");
+    const monthSelect = document.getElementById("monthSelect");
+
+    // ✅ Auto select first camera (if exists)
+    if (camSelect && camSelect.options.length > 1) {
+        camSelect.selectedIndex = 1;
+    }
+
+    // ✅ Auto select current month
+    if (monthSelect) {
+        const currentMonth = new Date().getMonth() + 1; // 1–12
+        monthSelect.value = String(currentMonth);
+    }
+
+    updateChart();
+});
+
+async function updateChart() {
+    const cam = document.getElementById("cameraSelect").value;
+    const month = document.getElementById("monthSelect").value;
+
+    if (!cam || !month) {
+        renderChart(0, 0, 0);
+        document.getElementById("emptyMsg").style.display = "block";
+        return;
+    }
+
+    document.getElementById("emptyMsg").style.display = "none";
+
+    try {
+        // ✅ encode camera name (spaces/special chars)
+        const url = `/camera-chart/?camera=${encodeURIComponent(cam)}&month=${encodeURIComponent(month)}`;
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            console.error("camera-chart API failed:", res.status);
+            renderChart(0, 0, 0);
+            return;
+        }
+
+        const data = await res.json();
+        renderChart(+data.emp || 0, +data.unknown || 0, +data.noface || 0);
+
+    } catch (err) {
+        console.error("updateChart error:", err);
+        renderChart(0, 0, 0);
+    }
+}
+
+document.getElementById("cameraSelect").addEventListener("change", updateChart);
+document.getElementById("monthSelect").addEventListener("change", updateChart);
+</script>
+{% endblock %}

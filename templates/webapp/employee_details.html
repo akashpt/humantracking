@@ -1,0 +1,373 @@
+{% extends 'webapp/layouts/base.html' %}
+{% load static %}
+{% block content %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --wine: #722f37;
+      --wine-dk: #4e1f25;
+      --wine-lt: #a0525b;
+      --wine-glow: rgba(114, 47, 55, 0.18);
+      --rose: #fdf0f2;
+      --rose-md: #edd4d7;
+      --gold: #c9a96e;
+      --gold-lt: #f0e0c0;
+      --ink: #16090b;
+      --charcoal: #2e1a1e;
+      --text: #4a2c31;
+      --muted: #9a7278;
+      --canvas: #fdf6f7;
+      --surface: #ffffff;
+      --border: #e8d4d7;
+      --border-dk: #d4b8bc;
+      --success: #2d6a4f;
+      --success-bg: #d8f3dc;
+      --warn: #7d4e07;
+      --warn-bg: #fef3c7;
+      --danger: #7f1d1d;
+      --danger-bg: #fee2e2;
+    }
+  </style>
+
+  <section class="employee-details">
+    <div class="container">
+      <!-- Page label -->
+
+      <!-- Profile Hero -->
+      <div class="profile-card">
+        <!-- <div class="profile-accent"></div> -->
+        <div class="profile-body">
+          <div class="avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400" alt="Priya" class="avatar" />
+            <div class="status-dot"></div>
+          </div>
+          <div class="profile-info">
+            <h1>Priya Mahendran</h1>
+            <div class="role">Senior Full Stack Developer</div>
+            <div class="meta-pills">
+              <span class="meta-pill"><i class="fas fa-id-badge"></i> EMP-2023001</span>
+              <span class="meta-pill"><i class="fas fa-building"></i> COIMB-2025-078</span>
+              <span class="meta-pill"><i class="fas fa-layer-group"></i> Software Development</span>
+              <span class="meta-pill"><i class="fas fa-map-marker-alt"></i> Coimbatore, IN</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat">
+            <div class="stat-val good">97%</div>
+            <div class="stat-lbl">Compliance</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val warn">2</div>
+            <div class="stat-lbl">Violations</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">30</div>
+            <div class="stat-lbl">Days Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-icon wine">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <div class="kpi-data">
+            <div class="num">97%</div>
+            <div class="lbl">Overall Compliance</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon red">
+            <i class="fas fa-ban"></i>
+          </div>
+          <div class="kpi-data">
+            <div class="num">2</div>
+            <div class="lbl">Active Violations</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="kpi-data">
+            <div class="num">48</div>
+            <div class="lbl">Rules Followed</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon gold">
+            <i class="fas fa-clock-rotate-left"></i>
+          </div>
+          <div class="kpi-data">
+            <div class="num">Mar 2</div>
+            <div class="lbl">Last Updated</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>Safety Compliance Trend</h3>
+            <span class="badge">Last 30 Days</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="complianceTrendChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Violation Breakdown</h3>
+            <span class="badge">This Month</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="violationBreakdownChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card">
+        <div class="card-header">
+          <h3>Safety Rules &amp; Movement Log</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Rule / Event</th>
+              <th>Location</th>
+              <th>Status</th>
+              <!-- <th>Remarks</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-time">
+                <strong>02 Mar 2026</strong>
+                14:45
+              </td>
+              <td class="td-rule">Zone Access</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i> Server Room (Restricted)
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-restricted"><i class="fas fa-times-circle"></i> Restricted</span>
+              </td>
+              <!--    <td class="remarks">
+                  Entry attempted without authorization → Alert sent
+                </td>    -->
+            </tr>
+            <tr>
+              <td class="td-time">
+                <strong>02 Mar 2026</strong>
+                13:20
+              </td>
+              <td class="td-rule">Phone Usage</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i> Production Floor
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-warning"><i class="fas fa-triangle-exclamation"></i> Violation</span>
+              </td>
+              <!--    <td class="remarks">
+                  Phone used in no-phone zone → 1st warning issued
+                </td>    -->
+            </tr>
+            <tr>
+              <td class="td-time">
+                <strong>02 Mar 2026</strong>
+                11:05
+              </td>
+              <td class="td-rule">PPE Check</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i> Lab Area B
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-allowed"><i class="fas fa-check-circle"></i> Compliant</span>
+              </td>
+              <!--    <td class="remarks">
+                  All PPE equipment worn correctly. Passed inspection.
+                </td>    -->
+            </tr>
+            <tr>
+              <td class="td-time">
+                <strong>01 Mar 2026</strong>
+                09:30
+              </td>
+              <td class="td-rule">Hazard Reporting</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i>
+                  Corridor C
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-info">
+                  <i class="fas fa-info-circle"></i>
+                  Reported
+                </span>
+              </td>
+              <!--    <td class="remarks">
+                  Wet floor hazard reported and escalated to facilities.
+                </td>    -->
+            </tr>
+            <tr>
+              <td class="td-time">
+                <strong>28 Feb 2026</strong>
+                16:50
+              </td>
+              <td class="td-rule">Zone Access</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i>
+                  Cafeteria
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-allowed">
+                  <i class="fas fa-check-circle"></i>
+                  Allowed
+                </span>
+              </td>
+              <!--    <td class="remarks">
+                  Standard access during permitted lunch hours.
+                </td>    -->
+            </tr>
+            <tr>
+              <td class="td-time">
+                <strong>27 Feb 2026</strong>
+                10:15
+              </td>
+              <td class="td-rule">Fire Drill</td>
+              <td>
+                <div class="td-loc">
+                  <i class="fas fa-location-dot"></i>
+                  Entire Building
+                </div>
+              </td>
+              <td>
+                <span class="status-badge st-allowed">
+                  <i class="fas fa-check-circle"></i>
+                  Compliant
+                </span>
+              </td>
+              <!--    <td class="remarks">
+                  Evacuated within 2 min 14 sec. Met safety standard.
+                </td>    -->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  <script>
+    // Chart defaults
+    Chart.defaults.font.family = "'Inter', sans-serif"
+    Chart.defaults.color = '#9a7278'
+    
+    // 1. Compliance Trend
+    new Chart(document.getElementById('complianceTrendChart'), {
+      type: 'line',
+      data: {
+        labels: ['Feb 1', 'Feb 5', 'Feb 10', 'Feb 15', 'Feb 20', 'Feb 25', 'Mar 1', 'Mar 2'],
+        datasets: [
+          {
+            label: 'Compliance %',
+            data: [98, 97, 95, 96, 99, 92, 97, 100],
+            borderColor: '#722f37',
+            backgroundColor: 'rgba(114,47,55,0.08)',
+            tension: 0.45,
+            fill: true,
+            pointBackgroundColor: '#722f37',
+            pointBorderColor: '#fdf6f7',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { color: '#f0e4e6' },
+            ticks: { font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: false,
+            min: 85,
+            max: 100,
+            grid: { color: '#f0e4e6' },
+            ticks: {
+              font: { size: 11 },
+              callback: (v) => v + '%'
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#4e1f25',
+            titleColor: '#c9a96e',
+            bodyColor: '#fff',
+            padding: 10,
+            callbacks: { label: (ctx) => ` ${ctx.raw}% compliant` }
+          }
+        }
+      }
+    })
+    
+    // 2. Violation Breakdown
+    new Chart(document.getElementById('violationBreakdownChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Compliant', 'Restricted Area', 'Phone Violation', 'Other'],
+        datasets: [
+          {
+            data: [80, 14, 3, 3],
+            backgroundColor: ['#2d6a4f', '#722f37', '#c9a96e', '#9a7278'],
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 14,
+              font: { size: 12 },
+              usePointStyle: true,
+              pointStyleWidth: 17
+            }
+          },
+          tooltip: {
+            backgroundColor: '#4e1f25',
+            titleColor: '#c9a96e',
+            bodyColor: '#fff',
+            padding: 10,
+            callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}%` }
+          }
+        }
+      }
+    })
+  </script>
+{% endblock %}
